@@ -9,8 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-jakarta)", "system-ui", "sans-serif"],
-        display: ["var(--font-jakarta)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-sans)", "system-ui", "sans-serif"],
       },
       colors: {
         warm: {
@@ -88,10 +88,6 @@ const config: Config = {
         pulseOval: {
           "0%, 100%": { opacity: "0.7" },
           "50%": { opacity: "1" },
-        },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
         },
         ringGlow: {
           "0%, 100%": { boxShadow: "0 0 0 2px rgba(0, 184, 148, 0.3)" },

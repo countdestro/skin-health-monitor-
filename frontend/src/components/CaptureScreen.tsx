@@ -35,7 +35,7 @@ export function CaptureScreen({ onError }: CaptureScreenProps) {
   const [cameraReady, setCameraReady] = useState(false);
   const webcamRef = useRef<Webcam>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const getOrCreateSessionId = useSessionStore((s) => s.getOrCreateSessionId());
+  const getOrCreateSessionId = useSessionStore((s) => s.getOrCreateSessionId);
 
   const handleValidation = useCallback((result: ValidationResult) => {
     if (!result.valid) {

@@ -21,16 +21,15 @@
   <h1>AI Skin Health Monitor</h1>
 
   <div class="note">
-    <strong>If something says &quot;restart browser&quot; and it still doesn&#39;t work:</strong>
-    Do <strong>not</strong> use Cursor&#39;s built-in browser. Open this page in <strong>Chrome</strong> or <strong>Edge</strong>:
+    <strong>Use Chrome or Edge</strong> — do not use Cursor&#39;s built-in browser.
     <br><br>
-    Run the Image Processing service (in a terminal):<br>
-    <code>cd image_processor && docker compose up --build</code><br>
-    or (if you have Python): <code>cd image_processor && uvicorn app.main:app --port 8001</code>
+    <strong>1. Start the Image Processing service</strong> (in a terminal, from the project root):<br>
+    <code>cd image_processor</code><br>
+    <code>python -m uvicorn app.main:app --port 8001</code>
     <br><br>
-    Then open this file in Chrome/Edge: double‑click <code>index.html</code> or drag it into the browser.
-    <br>
-    Or run a small server and open in browser: <code>python -m http.server 3000</code> then go to <strong>http://localhost:3000</strong>
+    <strong>2. Open this page in Chrome/Edge:</strong><br>
+    Double‑click <code>START_APP.bat</code> (starts image processor + server and opens this page).<br>
+    Or in a terminal (PowerShell: <code>Set-Location "path"</code> or <code>cd "path"</code>; CMD: <code>cd /d "path"</code>). From <code>frontend\public</code> run <code>python -m http.server 8080</code>, then open <strong>http://localhost:8080/index-standalone.html</strong>
   </div>
 
   <p>

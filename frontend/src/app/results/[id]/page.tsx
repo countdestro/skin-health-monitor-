@@ -108,7 +108,7 @@ export default function ResultsPage() {
             </section>
 
             <section className="border-t border-zinc-100 pt-4">
-              <ConditionsChart predictions={result.predictions ?? []} />
+              <ConditionsChart predictions={result.predictions ?? result.conditions ?? []} />
             </section>
 
             <section className="border-t border-zinc-100 pt-4">

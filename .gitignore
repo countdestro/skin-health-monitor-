@@ -19,10 +19,14 @@ env/
 dist/
 build/
 
-# Weights (large)
+# Weights and datasets (large)
 weights/*.h5
 weights/*.keras
 weights/*.ckpt
+**/weights/*.h5
+**/weights/*.keras
+datasets/
+**/datasets/
 
 # Node / frontend
 node_modules/

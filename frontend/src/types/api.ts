@@ -14,7 +14,8 @@ export interface AnalyseRequest {
 }
 
 export interface ConditionPrediction {
-  condition: string;
+  condition?: string;
+  condition_name?: string;
   confidence: number;
   class_id: number;
 }
@@ -31,7 +32,9 @@ export interface AnalysisResult {
   severity_tier: string;
   top_condition: string;
   top_confidence: number;
-  predictions: ConditionPrediction[];
+  /** Backend may return either "predictions" or "conditions" */
+  predictions?: ConditionPrediction[];
+  conditions?: ConditionPrediction[];
   recommendations: Recommendation[];
   processing_time_ms?: number;
   history?: SessionHistoryItem[];

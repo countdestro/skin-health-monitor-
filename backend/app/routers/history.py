@@ -65,6 +65,6 @@ async def get_session(
         "top_confidence": session.top_confidence,
         "quality_score": session.quality_score,
         "processing_time_ms": session.processing_time_ms,
-        "conditions": [{"condition_name": c.condition_name, "confidence": c.confidence, "class_id": c.class_id} for c in conds],
+        "conditions": [{"condition": c.condition_name, "condition_name": c.condition_name, "confidence": c.confidence, "class_id": c.class_id} for c in conds],
         "recommendations": [{"category": r.category, "content": r.content, "priority_rank": r.priority_rank} for r in recs],
     })
