@@ -5,7 +5,7 @@ FastAPI app: auth, health-insight, history, session, analyse gateway; health che
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, health_insight, history, session_delete, analyse
+from app.routers import auth, health_insight, history, session_delete, analyse, conditions
 
 app = FastAPI(
     title="AI Skin Health Monitor — Backend & Insights",
@@ -31,6 +31,7 @@ app.include_router(health_insight.router, prefix="/api")
 app.include_router(history.router, prefix="/api")
 app.include_router(session_delete.router, prefix="/api")
 app.include_router(analyse.router, prefix="/api")
+app.include_router(conditions.router, prefix="/api")
 
 # Also expose at root for direct service-to-service (e.g. health-insight)
 app.include_router(auth.router)
@@ -38,3 +39,4 @@ app.include_router(health_insight.router)
 app.include_router(history.router)
 app.include_router(session_delete.router)
 app.include_router(analyse.router)
+app.include_router(conditions.router)
