@@ -58,7 +58,7 @@ def _to_gateway_response(result: dict, inference_time_ms: int) -> dict:
     """Shape expected by backend analyse gateway."""
     frac = result.get("confidence_fraction", result["confidence"] / 100.0)
     all_scores = result.get("all_scores", [])
-    # Backend condition IDs: 0=Healthy, 1=Acne, 2=Eczema, 3=Psoriasis, 4=Rosacea, 5=Pigmentation
+    # Backend condition IDs: 1–7 for HAM10000 classes (Actinic keratosis … Vascular lesion)
     predictions = [
         {"condition": s["condition"], "confidence": s["probability"], "class_id": SKIN_CONDITIONS.index(s["condition"]) + 1}
         for s in all_scores

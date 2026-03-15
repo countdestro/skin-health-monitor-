@@ -1,17 +1,20 @@
 """
 Health Insight Engine — Section 7.2 & 7.3.
 Skin Health Score (SHS), severity tier, and rule-based recommendation engine.
+Supports HAM10000 conditions (7 lesion types) and legacy 5-condition set.
 """
 from typing import NamedTuple
 
-# Condition class IDs per document (Section 6.2)
+# HAM10000 condition IDs (1–7) — matches Member 3 AI output
 CONDITION_IDS = {
-    0: "Healthy",
-    1: "Acne",
-    2: "Eczema",
-    3: "Psoriasis",
-    4: "Rosacea",
-    5: "Pigmentation",
+    0: "Unknown",
+    1: "Actinic keratosis",
+    2: "Basal cell carcinoma",
+    3: "Benign keratosis",
+    4: "Dermatofibroma",
+    5: "Melanoma",
+    6: "Melanocytic nevus",
+    7: "Vascular lesion",
 }
 
 # Severity tiers and colours (Section 7.2)
@@ -35,20 +38,23 @@ def compute_skin_health_score(
     Base 100, subtract penalties for dominant condition confidence and severity.
     """
     base = 100.0
-    if top_condition == "Healthy" and top_confidence >= 0.7:
-        return min(100, int(base - (1 - top_confidence) * 20))
-    # Penalty: higher confidence in a condition → lower score
-    penalty = top_confidence * 45  # e.g. 0.9 conf → -40.5
-    if top_condition == "Psoriasis":
-        penalty *= 1.2
-    if top_condition in ("Eczema", "Rosacea"):
+    # Benign / low concern
+    if top_condition in ("Melanocytic nevus", "Dermatofibroma", "Benign keratosis") and top_confidence >= 0.7:
+        return min(100, int(base - (1 - top_confidence) * 25))
+    # High concern: melanoma, BCC — heavy penalty
+    penalty = top_confidence * 50
+    if top_condition == "Melanoma":
+        penalty *= 1.4
+    if top_condition == "Basal cell carcinoma":
+        penalty *= 1.3
+    if top_condition in ("Actinic keratosis", "Vascular lesion"):
         penalty *= 1.1
     score = base - penalty - (1 - quality_score) * 15
     return max(0, min(100, int(round(score))))
 
 
 def get_severity_tier(score: int) -> tuple[str, str]:
-    """Return (tier_label, hex_color). Section 7.2: 0–19 Severe, 20–39/40–59 Poor, 60–79 Fair, 80–100 Good."""
+    """Return (tier_label, hex_color)."""
     if score >= 80:
         return "Good", "#27AE60"
     if score >= 60:
@@ -67,7 +73,7 @@ def get_recommendations(
     predictions: list[dict],
 ) -> list[dict]:
     """
-    Rule-based recommendation engine — Section 7.3.
+    Rule-based recommendation engine for HAM10000 conditions.
     Returns list of { category, content, priority_rank }.
     """
     recs: list[dict] = []
@@ -78,28 +84,41 @@ def get_recommendations(
         rank += 1
         recs.append({"category": category, "content": content, "priority_rank": rank})
 
-    # Skincare — any condition
-    add("Skincare Routine", "Use a gentle, fragrance-free cleanser twice daily")
-    if top_condition == "Acne":
-        add("Skincare Routine", "Apply non-comedogenic SPF 30+ moisturiser in the morning")
-    if top_condition in ("Eczema", "Psoriasis"):
-        add("Skincare Routine", "Apply emollient cream within 3 minutes of showering")
+    # Urgent: melanoma or BCC
+    if top_condition == "Melanoma" and top_confidence > 0.3:
+        add("Medical Referral", "Urgent: possible melanoma. See a dermatologist within 1–2 days for evaluation.")
+    if top_condition == "Basal cell carcinoma" and top_confidence > 0.4:
+        add("Medical Referral", "Possible basal cell carcinoma. Book a dermatology appointment within 2 weeks.")
 
-    # Diet
-    if top_condition == "Acne" and top_confidence > 0.5:
-        add("Diet & Nutrition", "Reduce high-glycaemic foods; increase omega-3 intake")
-    if top_condition == "Rosacea":
-        add("Diet & Nutrition", "Avoid spicy foods, alcohol, and extreme temperatures")
+    # Actinic keratosis — sun damage, precancerous
+    if top_condition == "Actinic keratosis":
+        add("Skincare Routine", "Use broad-spectrum SPF 50+ daily; avoid prolonged sun exposure.")
+        add("Medical Referral", "Actinic keratosis can be precancerous. Have a dermatologist review.")
 
-    # Hydration
-    add("Hydration", "Drink 2–3 litres of water daily; use a humidifier in dry environments")
+    # Benign keratosis
+    if top_condition == "Benign keratosis":
+        add("Skincare Routine", "Gentle cleansing; moisturise. No treatment required unless changing or symptomatic.")
 
-    # Medical referral
-    if score < 40 or (top_condition == "Psoriasis" and top_confidence > 0.6):
-        add("Medical Referral", "Consult a certified dermatologist within 2 weeks")
+    # Dermatofibroma — benign
+    if top_condition == "Dermatofibroma":
+        add("Skincare Routine", "Benign lesion; no action needed unless it changes or bothers you.")
 
-    # Lifestyle
-    if top_condition in ("Rosacea", "Eczema"):
-        add("Lifestyle", "Manage stress: consider mindfulness or yoga to reduce flare-ups")
+    # Melanocytic nevus (mole)
+    if top_condition == "Melanocytic nevus":
+        add("Lifestyle", "Monitor for changes (asymmetry, border, colour, diameter). Use SPF when outdoors.")
+
+    # Vascular lesion
+    if top_condition == "Vascular lesion":
+        add("Skincare Routine", "Usually benign (e.g. angioma). See a doctor if it bleeds or grows quickly.")
+
+    # General
+    add("Skincare Routine", "Use a gentle, fragrance-free cleanser and moisturiser.")
+    add("Hydration", "Drink 2–3 litres of water daily; use a humidifier in dry environments.")
+
+    # Lower score or high-confidence concerning finding
+    if score < 40:
+        add("Medical Referral", "Consult a certified dermatologist for a full skin check.")
+    if top_condition == "Melanoma" and top_confidence > 0.5:
+        add("Medical Referral", "Do not delay: melanoma requires prompt professional evaluation.")
 
     return recs

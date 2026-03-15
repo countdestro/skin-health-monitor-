@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 import os
 from pathlib import Path
 
@@ -19,10 +20,27 @@ _model = None
 _weights_loaded = False
 
 
+def _load_backbone_from_config(weights_path: Path) -> str | None:
+    """If weights were saved with train_advanced, config specifies backbone."""
+    config_path = weights_path.parent / (weights_path.stem + "_config.json")
+    if not config_path.exists():
+        config_path = weights_path.parent / "skin_model_config.json"
+    if config_path.exists():
+        try:
+            with open(config_path) as f:
+                return json.load(f).get("backbone")
+        except Exception:
+            pass
+    return None
+
+
 def load_trained_weights(weights_path: str | Path | None = None) -> None:
-    """Load fine-tuned weights. Without this, predictions are not medically meaningful."""
+    """Load fine-tuned weights. Uses saved config for backbone (e.g. efficientnetb0) if present."""
     global _model, _weights_loaded
     path = Path(weights_path or os.environ.get("SKIN_MODEL_WEIGHTS", _DEFAULT_WEIGHTS))
+    backbone = _load_backbone_from_config(path)
+    if backbone:
+        os.environ["SKIN_BACKBONE"] = backbone
     _model = build_model()
     if path.is_file():
         _model.load_weights(path)

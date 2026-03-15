@@ -18,23 +18,23 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["analyse"])
 settings = get_settings()
 
-# Mock response for Day 1 — Member 1 can build UI against this shape (Section 3.1)
+# Mock response — same shape as real analysis (HAM10000 conditions)
 MOCK_ANALYSIS = {
     "analysis_id": "mock-analysis-uuid-1234",
-    "skin_health_score": 74,
+    "skin_health_score": 72,
     "severity_tier": "Fair",
     "severity_color": "#F39C12",
-    "top_condition": "Acne",
-    "top_confidence": 0.87,
+    "top_condition": "Melanocytic nevus",
+    "top_confidence": 0.85,
     "conditions": [
-        {"condition": "Acne", "confidence": 0.87, "class_id": 1},
-        {"condition": "Healthy", "confidence": 0.08, "class_id": 0},
-        {"condition": "Pigmentation", "confidence": 0.03, "class_id": 5},
+        {"condition": "Melanocytic nevus", "confidence": 0.85, "class_id": 6},
+        {"condition": "Benign keratosis", "confidence": 0.08, "class_id": 3},
+        {"condition": "Melanoma", "confidence": 0.02, "class_id": 5},
     ],
     "recommendations": [
-        {"category": "Skincare Routine", "content": "Use a gentle, fragrance-free cleanser twice daily", "priority_rank": 1},
-        {"category": "Skincare Routine", "content": "Apply non-comedogenic SPF 30+ moisturiser in the morning", "priority_rank": 2},
-        {"category": "Hydration", "content": "Drink 2–3 litres of water daily; use a humidifier in dry environments", "priority_rank": 3},
+        {"category": "Lifestyle", "content": "Monitor for changes (asymmetry, border, colour, diameter). Use SPF when outdoors.", "priority_rank": 1},
+        {"category": "Skincare Routine", "content": "Use a gentle, fragrance-free cleanser and moisturiser.", "priority_rank": 2},
+        {"category": "Hydration", "content": "Drink 2–3 litres of water daily; use a humidifier in dry environments.", "priority_rank": 3},
     ],
     "processing_time_ms": 4200,
     "created_at": "2024-01-15T12:00:00.000Z",
