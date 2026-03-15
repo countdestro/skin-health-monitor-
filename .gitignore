@@ -1,0 +1,45 @@
+# From gitignore.txt + project
+docx_extract/
+temp_docx.zip
+*.docx
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+venv/
+.venv/
+env/
+.env
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Weights (large)
+weights/*.h5
+weights/*.keras
+weights/*.ckpt
+
+# Node / frontend
+node_modules/
+.next/
+out/
+.npm
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Env (keep .env.example)
+.env.local
+.env.*.local

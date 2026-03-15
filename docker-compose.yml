@@ -1,0 +1,86 @@
+# AI Skin Health Monitor — full stack
+# Run: docker compose up --build
+# Then: docker compose exec backend alembic upgrade head
+# Frontend: cd frontend && npm run dev (or add node service)
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: skin_monitor
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d skin_monitor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  image_processor:
+    build:
+      context: ./image_processor
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  ai_inference:
+    build:
+      context: ./ai_inference
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      SKIN_MODEL_WEIGHTS: ""
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8002/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_URL: postgresql+asyncpg://user:pass@db:5432/skin_monitor
+      REDIS_URL: redis://redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-change-me-32-byte-random-string-for-demo}
+      IMAGE_PROCESSOR_URL: http://image_processor:8001
+      AI_INFERENCE_URL: http://ai_inference:8002
+      MOCK_ANALYSE: "0"
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      image_processor: { condition: service_healthy }
+      ai_inference: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  pgdata:

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Skin Health Monitor</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { font-size: 1.5rem; }
+    .note { background: #fff3cd; border: 1px solid #ffc107; padding: 0.75rem; margin: 1rem 0; border-radius: 6px; }
+    .note strong { display: block; margin-bottom: 0.25rem; }
+    button { padding: 0.5rem 1rem; margin: 0.25rem 0.25rem 0 0; cursor: pointer; }
+    .ok { color: green; }
+    .err { color: #c00; }
+    pre { background: #f5f5f5; padding: 0.75rem; overflow: auto; font-size: 0.85rem; }
+    input[type="file"] { margin: 0.5rem 0; }
+  </style>
+</head>
+<body>
+  <h1>AI Skin Health Monitor</h1>
+
+  <div class="note">
+    <strong>If something says &quot;restart browser&quot; and it still doesn&#39;t work:</strong>
+    Do <strong>not</strong> use Cursor&#39;s built-in browser. Open this page in <strong>Chrome</strong> or <strong>Edge</strong>:
+    <br><br>
+    Run the Image Processing service (in a terminal):<br>
+    <code>cd image_processor && docker compose up --build</code><br>
+    or (if you have Python): <code>cd image_processor && uvicorn app.main:app --port 8001</code>
+    <br><br>
+    Then open this file in Chrome/Edge: double‑click <code>index.html</code> or drag it into the browser.
+    <br>
+    Or run a small server and open in browser: <code>python -m http.server 3000</code> then go to <strong>http://localhost:3000</strong>
+  </div>
+
+  <p>
+    <button type="button" id="check">Check Image Service (port 8001)</button>
+  </p>
+  <p id="status"></p>
+
+  <hr>
+  <p>Upload a face photo (JPEG/PNG) to test processing:</p>
+  <input type="file" id="file" accept="image/jpeg,image/png,image/webp">
+  <button type="button" id="send">Process image</button>
+  <p id="result"></p>
+
+  <script>
+    const API = 'http://localhost:8001';
+    const statusEl = document.getElementById('status');
+    const resultEl = document.getElementById('result');
+
+    document.getElementById('check').onclick = async function () {
+      statusEl.textContent = 'Checking…';
+      statusEl.className = '';
+      try {
+        const r = await fetch(API + '/health');
+        const j = await r.json();
+        statusEl.innerHTML = 'Service OK: <code>' + JSON.stringify(j) + '</code>';
+        statusEl.className = 'ok';
+      } catch (e) {
+        statusEl.textContent = 'Error: ' + e.message + '. Is the image service running on port 8001?';
+        statusEl.className = 'err';
+      }
+    };
+
+    document.getElementById('send').onclick = async function () {
+      const file = document.getElementById('file').files[0];
+      if (!file) { resultEl.textContent = 'Choose an image first.'; resultEl.className = 'err'; return; }
+      resultEl.textContent = 'Processing…';
+      resultEl.className = '';
+      try {
+        const b64 = await fileToBase64(file);
+        const r = await fetch(API + '/process-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_b64: b64 })
+        });
+        const j = await r.json();
+        if (r.ok && j.success) {
+          resultEl.innerHTML = 'Success. Quality score: ' + (j.data && j.data.quality_score) + '<br><pre>' + JSON.stringify(j, null, 2) + '</pre>';
+          resultEl.className = 'ok';
+        } else {
+          resultEl.innerHTML = 'Response: <pre>' + JSON.stringify(j, null, 2) + '</pre>';
+          resultEl.className = 'err';
+        }
+      } catch (e) {
+        resultEl.textContent = 'Error: ' + e.message;
+        resultEl.className = 'err';
+      }
+    };
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result.split(',')[1] || fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
+</html>

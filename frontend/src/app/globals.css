@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --skin-excellent: #2ecc71;
+  --skin-good: #a9dfbf;
+  --skin-fair: #f39c12;
+  --skin-moderate: #e67e22;
+  --skin-poor: #e74c3c;
+  --skin-severe: #922b21;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
