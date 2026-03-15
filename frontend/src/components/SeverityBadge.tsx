@@ -1,22 +1,23 @@
 "use client";
 
-const SEVERITY_STYLES: Record<string, { bg: string; text: string }> = {
-  Excellent: { bg: "bg-green-100", text: "text-green-800" },
-  Good: { bg: "bg-green-50", text: "text-green-700" },
-  Fair: { bg: "bg-amber-100", text: "text-amber-800" },
-  Moderate: { bg: "bg-orange-100", text: "text-orange-800" },
-  Poor: { bg: "bg-red-100", text: "text-red-800" },
-  Severe: { bg: "bg-red-200", text: "text-red-900" },
+const SEVERITY_STYLES: Record<string, { bg: string; text: string; border: string }> = {
+  Excellent: { bg: "bg-primary-50", text: "text-primary-800", border: "border-primary-200" },
+  Good: { bg: "bg-teal-50", text: "text-teal-800", border: "border-teal-200" },
+  Fair: { bg: "bg-amber-50", text: "text-amber-800", border: "border-amber-200" },
+  Moderate: { bg: "bg-orange-50", text: "text-orange-800", border: "border-orange-200" },
+  Poor: { bg: "bg-red-50", text: "text-red-800", border: "border-red-200" },
+  Severe: { bg: "bg-red-100", text: "text-red-900", border: "border-red-300" },
 };
 
 export function SeverityBadge({ tier }: { tier: string }) {
   const style = SEVERITY_STYLES[tier] ?? {
-    bg: "bg-slate-100",
-    text: "text-slate-800",
+    bg: "bg-surface-100",
+    text: "text-zinc-800",
+    border: "border-surface-200",
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${style.bg} ${style.text}`}
+      className={`inline-flex items-center rounded-full border px-3.5 py-1.5 text-sm font-semibold ${style.bg} ${style.text} ${style.border}`}
     >
       {tier}
     </span>

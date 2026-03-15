@@ -3,20 +3,48 @@
 @tailwind utilities;
 
 :root {
-  --skin-excellent: #2ecc71;
-  --skin-good: #a9dfbf;
-  --skin-fair: #f39c12;
-  --skin-moderate: #e67e22;
-  --skin-poor: #e74c3c;
-  --skin-severe: #922b21;
+  --teal: #00b894;
+  --teal-dark: #00897b;
+  --warm-gray: #f7f6f3;
+  --upload-bg: #f0faf6;
 }
 
-body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+@layer base {
+  body {
+    @apply bg-warm-gray text-zinc-800 antialiased;
+  }
+}
+
+/* 8px grid: use p-2, p-4, gap-2, gap-4, etc. */
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-soft transition-all duration-250 ease-smooth hover:-translate-y-0.5 hover:shadow-card-hover focus:outline-none focus:ring-2 focus:ring-[var(--teal)] focus:ring-offset-2 active:translate-y-0;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-5 py-2.5 text-sm font-medium text-zinc-700 shadow-card transition-all duration-250 ease-smooth hover:-translate-y-0.5 hover:bg-zinc-50 hover:border-zinc-300 hover:shadow-card-hover focus:outline-none focus:ring-2 focus:ring-zinc-200 active:translate-y-0;
+  }
+  .card {
+    @apply rounded-2xl border border-zinc-100 bg-white p-5 shadow-soft transition-shadow duration-250 hover:shadow-card-hover;
+  }
+  .card-static {
+    @apply rounded-2xl border border-zinc-100 bg-white p-5 shadow-soft;
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  .bg-gradient-teal {
+    background: linear-gradient(135deg, #00b894 0%, #00897b 100%);
+  }
+  .shimmer-sweep {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.25) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
   }
 }
